@@ -12,7 +12,7 @@ func worker(id int, jobs <-chan int, results chan<- int) {
 	for j := range jobs {
 		if j == -1 {
 			wg.Done()
-			return
+			break
 		}
 		fmt.Println("worker", id, "processing job", j)
 		time.Sleep(time.Second)
