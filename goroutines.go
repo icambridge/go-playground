@@ -8,12 +8,21 @@ import (
 
 var wg sync.WaitGroup
 
-type Task struct {
-	Name string
+type Task interface {
+	Name() string
+	Exec() string
 }
 
-func (t Task) Exec() string {
-	return t.Name
+type STask struct {
+	Word string
+}
+
+func (t STask) Name() string {
+	return t.Word
+}
+
+func (t STask) Exec() string {
+	return t.Word
 }
 
 
@@ -24,7 +33,7 @@ func worker(id int, jobs <-chan Task, results chan<- string) {
 			wg.Done()
 			break
 		}
-		fmt.Println("worker", id, "processing job", j.Name)
+		fmt.Println("worker", id, "processing job", j.Name())
 
 		time.Sleep(time.Second)
 		results <- j.Exec()
@@ -50,12 +59,12 @@ func main() {
 
 	go printer(results)
 
-	jobs <- Task{"Iain"}
-	jobs <- Task{"Ian"}
-	jobs <- Task{"John"}
-	jobs <- Task{"Sally"}
-	jobs <- Task{"James"}
-	jobs <- Task{"Adrian"}
+	jobs <- STask{"Iain"}
+	jobs <- STask{"Ian"}
+	jobs <- STask{"John"}
+	jobs <- STask{"Sally"}
+	jobs <- STask{"James"}
+	jobs <- STask{"Adrian"}
 	
 	close(jobs)
 	wg.Wait()
