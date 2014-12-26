@@ -8,20 +8,30 @@ import (
 
 var wg sync.WaitGroup
 
-func worker(id int, jobs <-chan int, results chan<- int) {
+type Task struct {
+	Name string
+}
+
+func (t Task) Exec() string {
+	return t.Name
+}
+
+
+func worker(id int, jobs <-chan Task, results chan<- string) {
 	for  {
 		j, ok := <-jobs
 		if !ok {
 			wg.Done()
 			break
 		}
-		fmt.Println("worker", id, "processing job", j)
+		fmt.Println("worker", id, "processing job", j.Name)
+
 		time.Sleep(time.Second)
-		results <- j * 2
+		results <- j.Exec()
 	}
 }
 
-func printer(results <-chan int) {
+func printer(results <-chan string) {
 
 	for r := range results {
 		fmt.Println(r)
@@ -29,8 +39,8 @@ func printer(results <-chan int) {
 }
 
 func main() {
-	jobs := make(chan int, 100)
-	results := make(chan int, 100)
+	jobs := make(chan Task, 100)
+	results := make(chan string, 100)
 	// This starts up 3 workers, initially blocked
 	// because there are no jobs yet.
 	for w := 1; w <= 3; w++ {
@@ -39,14 +49,14 @@ func main() {
 	}
 
 	go printer(results)
-	// Here we send 9 `jobs` and then `close` that
-	// channel to indicate that's all the work we have.
-	for j := 1; j <= 9; j++ {
-		jobs <- j
-	}
-//	for w := 1; w <= 3; w++ {
-//		jobs <- -1
-//	}
+
+	jobs <- Task{"Iain"}
+	jobs <- Task{"Ian"}
+	jobs <- Task{"John"}
+	jobs <- Task{"Sally"}
+	jobs <- Task{"James"}
+	jobs <- Task{"Adrian"}
+	
 	close(jobs)
 	wg.Wait()
 }
