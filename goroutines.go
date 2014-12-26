@@ -9,8 +9,9 @@ import (
 var wg sync.WaitGroup
 
 func worker(id int, jobs <-chan int, results chan<- int) {
-	for j := range jobs {
-		if j == -1 {
+	for  {
+		j, ok := <-jobs
+		if !ok {
 			wg.Done()
 			break
 		}
@@ -43,8 +44,9 @@ func main() {
 	for j := 1; j <= 9; j++ {
 		jobs <- j
 	}
-	for w := 1; w <= 3; w++ {
-		jobs <- -1
-	}
+//	for w := 1; w <= 3; w++ {
+//		jobs <- -1
+//	}
+	close(jobs)
 	wg.Wait()
 }
