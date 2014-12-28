@@ -40,13 +40,6 @@ func worker(id int, jobs <-chan Task, results chan<- string) {
 	}
 }
 
-func printer(results <-chan string) {
-
-	for r := range results {
-		fmt.Println(r)
-	}
-}
-
 func main() {
 	jobs := make(chan Task, 100)
 	results := make(chan string, 100)
@@ -57,8 +50,6 @@ func main() {
 		go worker(w, jobs, results)
 	}
 
-	go printer(results)
-
 	jobs <- STask{"Iain"}
 	jobs <- STask{"Ian"}
 	jobs <- STask{"John"}
@@ -68,4 +59,18 @@ func main() {
 	
 	close(jobs)
 	wg.Wait()
+
+	for {
+		select {
+			case r, ok := <-results:
+				if ok {
+					fmt.Println(r)
+				} else {
+					break
+				}
+		default:
+			close(results)
+			break
+		}
+	}
 }
