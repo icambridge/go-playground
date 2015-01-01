@@ -19,21 +19,28 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		go func(c net.Conn) {
 			buf := make([]byte, 4096)
 
 			for {
+				fmt.Println("here")
 				n, err := c.Read(buf)
 				if err != nil || n == 0 {
 					c.Close()
 					break
 				}
+
 				b := buf[:n]
 				s := string(b)
 				s = strings.TrimSpace(s)
-				fmt.Print(s)
-				fmt.Println("------")
-				n, err = c.Write(b)
+
+				if s == "hello" {
+					c.Write([]byte("Hello user\n"))
+				} else {
+					n, err = c.Write(b)
+				}
+
 				if err != nil {
 					c.Close()
 					break
