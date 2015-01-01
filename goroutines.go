@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"sync"
+	"time"
 )
 
 var wg sync.WaitGroup
@@ -25,9 +25,8 @@ func (t STask) Exec() string {
 	return t.Word
 }
 
-
 func worker(id int, jobs <-chan Task, results chan<- string) {
-	for  {
+	for {
 		j, ok := <-jobs
 		if !ok {
 			wg.Done()
@@ -56,18 +55,18 @@ func main() {
 	jobs <- STask{"Sally"}
 	jobs <- STask{"James"}
 	jobs <- STask{"Adrian"}
-	
+
 	close(jobs)
 	wg.Wait()
 
 	for {
 		select {
-			case r, ok := <-results:
-				if ok {
-					fmt.Println(r)
-				} else {
-					break
-				}
+		case r, ok := <-results:
+			if ok {
+				fmt.Println(r)
+			} else {
+				break
+			}
 		default:
 			close(results)
 			break
