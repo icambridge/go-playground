@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
-//	"strings"
+	//	"strings"
 	"time"
 )
 
@@ -58,7 +58,7 @@ func main() {
 					c.Close()
 					break
 					// This will timeout on the read.
-				case <- timer.C:
+				case <-timer.C:
 
 					fmt.Printf("Time out at %s\n", t)
 					c.Write([]byte("Connect time out\n"))
